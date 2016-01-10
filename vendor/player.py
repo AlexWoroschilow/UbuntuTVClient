@@ -25,11 +25,9 @@ class Player(object):
         pass
 
     def pause(self):
-        print('Player::pause')
         self.__player.pause()
 
     def stop(self):
-        print('Player::stop')
         self.__player.stop()
         pass
 

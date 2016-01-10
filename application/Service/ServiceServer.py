@@ -1,7 +1,3 @@
-import sys
-import socket
-import json
-from time import sleep
 from vendor import socketserver
 from vendor.EventDispatcher import Event
 from vendor.TransportProtocol.ProtocolJson import ProtocolJson
@@ -14,28 +10,22 @@ class ServiceServer(object):
         self.__protocol = ProtocolJson()
         self.__server = None
         self.__container = container
-
         pass
 
     def on_loaded(self, event, dispatcher):
         service_event_dispatcher = self.__container.get("event_dispatcher")
         service_event_dispatcher.addListener('app.on_ping', self.on_ping)
-        service_event_dispatcher.addListener('app.on_play', self.on_play)
-        service_event_dispatcher.addListener('app.on_stop', self.on_stop)
         service_event_dispatcher.addListener('app.on_shutdown', self.on_shutdown)
         pass
 
     def on_ping(self, event, dispatcher):
-        pass
-
-    def on_play(self, event, dispatcher):
-        pass
-
-    def on_stop(self, event, dispatcher):
+        service_logger = self.__container.get("logger")
+        service_logger.info('[ServiceServer] ping')
         pass
 
     def on_started(self, event, dispatcher):
         service_server = self
+        service_logger = self.__container.get("logger")
 
         class ServiceServerTCPHandler(socketserver.BaseRequestHandler):
             def handle(self):
@@ -44,19 +34,24 @@ class ServiceServer(object):
 
         for port in self.__port:
             try:
-                print("port", port)
+                service_logger.info('[ServiceServer] start on %s:%s' % (self.__host, port))
                 self.__server = socketserver.TCPServer((self.__host, port), ServiceServerTCPHandler)
+                service_logger.info('[ServiceServer] started on %s:%s' % (self.__host, port))
                 self.__server.serve_forever()
-                break
+                return
             except OSError as error:
-                print(error)
+                service_logger.error("[ServiceServer] error: %s" % error, None)
                 continue
+        service_logger.info('[ServiceServer] no free ports available')
         pass
 
     def process(self, data):
         service_event_dispatcher = self.__container.get("event_dispatcher")
 
         (task, event_data) = self.__protocol.translate(data)
+
+        service_logger = self.__container.get("logger")
+        service_logger.debug('[ServiceServer] process: %s' % task)
 
         service_event_dispatcher.dispatch(({
             "ping": "app.on_ping",
@@ -68,7 +63,9 @@ class ServiceServer(object):
         return data
 
     def on_shutdown(self, event, dispatcher):
-        print("ServiceServer::on_shutdown")
+        service_logger = self.__container.get("logger")
+        service_logger.debug('[ServiceServer] on_shutdown')
+
         if self.__server is not None:
             self.__server.shutdown()
         pass
@@ -83,7 +80,7 @@ if __name__ == "__main__":
     server = ServiceServer({})
     server.process(bytes('{"version":"0.1","task":"ping","data":{}}', 'utf-8'))
     print(server.process(bytes('{"version":"0.1","task":"ping","data":{}}', 'utf-8')))
-    print(server.process(bytes('{"version":"0.1","task":"play","data":{"stream": "file:///home/sensey/DIS-1-234843-01112014.webm"}}','utf-8')))
+    print(server.process(bytes('{"version":"0.1","task":"play","data":{"stream": "file:///home/sensey/DIS-1-234843-01112014.webm"}}', 'utf-8')))
     print(server.process(bytes('{"version":"0.1","task":"stop","data":{}}', 'utf-8')))
     print(server.process(bytes('{"version":"0.1","task":"pause","data":{}}', 'utf-8')))
     print(server.process(bytes('{"version":"0.1","task":"unknown","data":{}}', 'utf-8')))

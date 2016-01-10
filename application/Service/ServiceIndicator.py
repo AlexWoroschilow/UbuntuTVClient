@@ -25,26 +25,36 @@ class ServiceIndicator(object):
         pass
 
     def on_ping(self, event, dispatcher):
-        print('serviceindicator::on_ping')
+        service_logger = self.__container.get("logger")
+        service_logger.debug('[ServiceIndicator] ping')
         pass
 
     def on_play(self, event, dispatcher):
         assert 'stream' in event.data.keys()
-        self.__indicator.on_play(event.data['stream'], event.data['stream'])
-        print('ServiceIndicator::on_play')
+
+        name = event.data['stream']
+        stream = event.data['stream']
+
+        service_logger = self.__container.get("logger")
+        service_logger.debug("[ServiceIndicator] play: %s<%s>" % (name, stream))
+
+        self.__indicator.on_play(name, stream)
         pass
 
     def on_stop(self, event, dispatcher):
-        print('ServiceIndicator::on_stop')
+        service_logger = self.__container.get("logger")
+        service_logger.debug('[ServiceIndicator] stop')
         pass
 
     def on_pause(self, event, dispatcher):
-        print('ServiceIndicator::on_pause')
+        service_logger = self.__container.get("logger")
+        service_logger.debug('[ServiceIndicator] pause')
         pass
 
     def on_started(self, event, dispatcher):
         self.on_shutdown(event, dispatcher)
-
+        service_logger = self.__container.get("logger")
+        service_logger.debug('[ServiceIndicator] started')
         self.__thread = threading.Thread(target=self.on_started_target)
         self.__thread.daemon = True
         self.__thread.start()
@@ -54,34 +64,47 @@ class ServiceIndicator(object):
         self.__indicator.main()
 
     def on_shutdown(self, event, dispatcher):
+        service_logger = self.__container.get("logger")
+        service_logger.debug('[ServiceIndicator] shutdown')
         pass
 
     def on_indicator_play(self, item=None):
-        print("on_indicator_play", item)
+        service_logger = self.__container.get("logger")
+        service_logger.debug('[ServiceIndicator] indicator menu play selected')
+
         service_event_dispatcher = self.__container.get("event_dispatcher")
         service_event_dispatcher.dispatch('app.on_play', Event(item))
         pass
 
     def on_indicator_pause(self, item=None):
-        print("on_indicator_pause", item)
+        service_logger = self.__container.get("logger")
+        service_logger.debug('[ServiceIndicator] indicator menu pause selected')
+
         service_event_dispatcher = self.__container.get("event_dispatcher")
         service_event_dispatcher.dispatch('app.on_pause', Event(item))
         pass
 
     def on_indicator_stop(self, item=None):
-        print("on_indicator_stop", item)
+        service_logger = self.__container.get("logger")
+        service_logger.debug('[ServiceIndicator] indicator menu stop selected')
+
         service_event_dispatcher = self.__container.get("event_dispatcher")
         service_event_dispatcher.dispatch('app.on_stop', Event(item))
         pass
 
     def on_indicator_history(self, item=None):
+        service_logger = self.__container.get("logger")
+        service_logger.debug('[ServiceIndicator] indicator menu history selected')
+
         service_event_dispatcher = self.__container.get("event_dispatcher")
         service_event_dispatcher.dispatch('app.on_play', Event(item))
         print("on_indicator_history", item)
         pass
 
     def on_indicator_shutdown(self, item=None):
-        print("on_indicator_shutdown", item)
+        service_logger = self.__container.get("logger")
+        service_logger.debug('[ServiceIndicator] indicator menu shutdown selected')
+
         service_event_dispatcher = self.__container.get("event_dispatcher")
         service_event_dispatcher.dispatch('app.on_shutdown', Event(item))
         pass

@@ -1,24 +1,35 @@
-import inspect
-from  logging import *
+from logging import *
 
-
-class ServiceLogger():
-    """
-    Initialize a main power manager object
-    set up all power switchers
-    """
-    def __init__(self, container):
-        basicConfig(level=DEBUG, filename='./powermanager.log')
-        self._logger = getLogger("power_manager")
+class ServiceLogger(object):
+    def __init__(self):
+        basicConfig(level=DEBUG, filename='./ubuntu_tv_client.log')
+        self.__logger = getLogger("ubuntu_tv_client")
         pass
-
 
     def on_loaded(self, event, dispatcher):
-        print("ServiceLogger.on_loaded")
+        self.__logger.debug("on_loaded action")
         pass
-
 
     def on_started(self, event, dispatcher):
-        print("ServiceLogger.on_started")
+        self.__logger.debug("on_started action")
         pass
 
+    def debug(self, message):
+        self.__logger.debug(message)
+        pass
+
+    def info(self, message):
+        self.__logger.debug(message)
+        pass
+
+    def warning(self, message):
+        self.__logger.warning(message)
+        pass
+
+    def error(self, message):
+        self.__logger.error(message)
+        pass
+
+    def fatal(self, message):
+        self.__logger.fatal(message)
+        pass

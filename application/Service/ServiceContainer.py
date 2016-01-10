@@ -9,6 +9,7 @@ from vendor.EventDispatcher import EventDispatcher
 from application.Service.ServiceServer import ServiceServer
 from application.Service.ServicePlayer import ServicePlayer
 from application.Service.ServiceIndicator import ServiceIndicator
+from application.Service.ServiceLogger import ServiceLogger
 
 
 class ServiceContainer(object):
@@ -20,11 +21,11 @@ class ServiceContainer(object):
         pass
 
     def __load(self, binder):
+        binder.bind("logger", ServiceLogger())
         binder.bind("event_dispatcher", EventDispatcher())
         binder.bind("server", ServiceServer(self))
         binder.bind("indicator", ServiceIndicator(self))
         binder.bind("player", ServicePlayer(self))
-
         pass
 
     def __on_loaded(self, event, dispatcher):

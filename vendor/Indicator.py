@@ -17,7 +17,6 @@ class IndicatorUbuntuTV(object):
         for (name, module) in inspect.getmembers(Plugins, inspect.ismodule):
             if hasattr(module, name):
                 identifier = getattr(module, name)
-                print(identifier)
                 self.__pligins.append(identifier(self))
         self.__pligins.sort(key=None, reverse=False)
 
