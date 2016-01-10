@@ -1,5 +1,6 @@
 from logging import *
 
+
 class ServiceLogger(object):
     def __init__(self):
         basicConfig(level=DEBUG, filename='./ubuntu_tv_client.log')

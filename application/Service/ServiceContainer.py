@@ -14,13 +14,13 @@ from application.Service.ServiceLogger import ServiceLogger
 
 class ServiceContainer(object):
     def __init__(self):
-        Inject.configure_once(self.__load)
+        Inject.configure_once(self.__load_services)
         service_event_dispatcher = self.get("event_dispatcher")
         service_event_dispatcher.addListener('app.on_loaded', self.__on_loaded)
         service_event_dispatcher.addListener('app.on_started', self.__on_started)
         pass
 
-    def __load(self, binder):
+    def __load_services(self, binder):
         binder.bind("logger", ServiceLogger())
         binder.bind("event_dispatcher", EventDispatcher())
         binder.bind("server", ServiceServer(self))
@@ -48,9 +48,7 @@ class ServiceContainer(object):
         service_event_dispatcher.addListener('app.on_started', service_player.on_started)
         service_event_dispatcher.addListener('app.on_started', service_indicator.on_started)
         service_event_dispatcher.addListener('app.on_started', service_server.on_started)
-
         pass
 
     def get(self, name):
         return Inject.instance(name)
-        pass
