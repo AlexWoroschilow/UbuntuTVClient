@@ -1,3 +1,4 @@
+import netifaces
 from vendor import socketserver
 from vendor.EventDispatcher import Event
 from vendor.TransportProtocol.ProtocolJson import ProtocolJson
@@ -11,6 +12,20 @@ class ServiceServer(object):
         self.__server = None
         self.__container = container
         pass
+
+    @property
+    def ports(self):
+        return [i for i in range(8880, 8890)]
+
+    @property
+    def ips(self):
+        for devices in netifaces.interfaces():
+            collection = netifaces.ifaddresses(devices)
+            if collection is not None and netifaces.AF_INET in collection.keys():
+                for interface in collection[netifaces.AF_INET]:
+                    if 'addr' in interface.keys():
+                        yield interface['addr']
+
 
     def on_loaded(self, event, dispatcher):
         service_event_dispatcher = self.__container.get("event_dispatcher")
@@ -40,7 +55,7 @@ class ServiceServer(object):
                 self.__server.serve_forever()
                 return
             except OSError as error:
-                service_logger.error("[ServiceServer] error: %s" % error, None)
+                service_logger.error("[ServiceServer] error: %s" % error)
                 continue
         service_logger.info('[ServiceServer] no free ports available')
         pass
@@ -78,10 +93,12 @@ class ServiceServer(object):
 
 if __name__ == "__main__":
     server = ServiceServer({})
-    server.process(bytes('{"version":"0.1","task":"ping","data":{}}', 'utf-8'))
-    print(server.process(bytes('{"version":"0.1","task":"ping","data":{}}', 'utf-8')))
-    print(server.process(bytes('{"version":"0.1","task":"play","data":{"stream": "file:///home/sensey/DIS-1-234843-01112014.webm"}}', 'utf-8')))
-    print(server.process(bytes('{"version":"0.1","task":"stop","data":{}}', 'utf-8')))
-    print(server.process(bytes('{"version":"0.1","task":"pause","data":{}}', 'utf-8')))
-    print(server.process(bytes('{"version":"0.1","task":"unknown","data":{}}', 'utf-8')))
-    print(server.process(bytes('asdfasdfadfs', 'utf-8')))
+    print([ip for ip in server.ips])
+    print(server.ports)
+    # print(server.process(bytes('{"version":"0.1","task":"ping","data":{}}', 'utf-8')))
+    # print(server.process(bytes('{"version":"0.1","task":"ping","data":{}}', 'utf-8')))
+    # print(server.process(bytes('{"version":"0.1","task":"play","data":{"stream": "file:///home/sensey/DIS-1-234843-01112014.webm"}}', 'utf-8')))
+    # print(server.process(bytes('{"version":"0.1","task":"stop","data":{}}', 'utf-8')))
+    # print(server.process(bytes('{"version":"0.1","task":"pause","data":{}}', 'utf-8')))
+    # print(server.process(bytes('{"version":"0.1","task":"unknown","data":{}}', 'utf-8')))
+    # print(server.process(bytes('asdfasdfadfs', 'utf-8')))
